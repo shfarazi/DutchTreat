@@ -16,6 +16,9 @@ namespace DutchTreat.Data
             CreateMap<Order, OrderViewModel>()
                 .ForMember(x=> x.OrderId, y=> y.MapFrom(z=> z.Id))
                 .ReverseMap();
+
+            CreateMap<OrderItem, OrderItemViewModel>()
+                .ReverseMap();
         }  
     }
 }

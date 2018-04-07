@@ -25,12 +25,20 @@ namespace DutchTreat.Data
             _ctx.Add(model);
         }
 
-        public IEnumerable<Order> GetAllOrders()
+        public IEnumerable<Order> GetAllOrders(bool includeItems)
         {
-            return _ctx.Orders
-                .Include(x => x.Items)
-                .ThenInclude(i => i.Product)
-                .ToList();
+            if (includeItems)
+            {
+                return _ctx.Orders
+                    .Include(x => x.Items)
+                    .ThenInclude(i => i.Product)
+                    .ToList();
+            }
+            else
+            {
+                return _ctx.Orders
+                    .ToList();
+            }
         }
 
         //Insert try/catch for all the methods so that error shows for all//

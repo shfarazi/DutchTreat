@@ -41,6 +41,24 @@ namespace DutchTreat.Data
             }
         }
 
+        public IEnumerable<Order> GetAllOrdersByUser(string username, bool includeItems)
+        {
+            if (includeItems)
+            {
+                return _ctx.Orders
+                    .Where(x => x.User.UserName == username)
+                    .Include(x => x.Items)
+                    .ThenInclude(i => i.Product)
+                    .ToList();
+            }
+            else
+            {
+                return _ctx.Orders
+                    .Where(x => x.User.UserName == username)
+                    .ToList();
+            }
+        }
+
         //Insert try/catch for all the methods so that error shows for all//
 
         public IEnumerable<Product> GetAllProducts()
@@ -59,13 +77,18 @@ namespace DutchTreat.Data
             }
         }
 
-        public Order GetOrderById(int id)
+        public Order GetOrderById(string username, int id)
         {
             return _ctx.Orders
                 .Include(x => x.Items)
                 .ThenInclude(i => i.Product)
-                .Where(x => x.Id ==id)
+                .Where(x => x.Id ==id && x.User.UserName == username)
                 .FirstOrDefault();
+        }
+
+        public IEnumerable<Order> GetOrderByUser(string username, bool includeItems)
+        {
+            throw new NotImplementedException();
         }
 
         public IEnumerable<Product> GetProductsByCatagory(string category)

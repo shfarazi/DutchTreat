@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using DutchTreat.Data;
@@ -14,18 +16,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace DutchTreat
 {
     public class Startup
     {
-        private readonly IConfiguration config;
+        private readonly IConfiguration _config;
         private readonly IHostingEnvironment _env;
 
         public Startup(IConfiguration config, IHostingEnvironment env)
         {
-            this.config = config;
+            _config = config;
             _env = env;
         }
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -38,9 +41,23 @@ namespace DutchTreat
             })
             .AddEntityFrameworkStores<DutchContext>();
 
+            services.AddAuthentication()
+                .AddCookie()
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidIssuer = _config["Tokens:Issuer"],
+                        ValidAudience = _config["Tokens:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"])),
+                        //NameClaimType = ClaimTypes.NameIdentifier,
+                    };
+
+                });
+
             services.AddDbContext<DutchContext>(cfg =>
             {
-                cfg.UseSqlServer(config.GetConnectionString("DutchConnectionString"));
+                cfg.UseSqlServer(_config.GetConnectionString("DutchConnectionString"));
             });
 
             services.AddAutoMapper();
